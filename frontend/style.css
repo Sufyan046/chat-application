@@ -1,0 +1,115 @@
+:root {
+    --primary-blue: #2563eb;
+    --bg-gray: #f9fafb;
+    --border-gray: #f3f4f6;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #d1d5db;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Message Styles */
+.message-bubble {
+    max-width: 75%;
+    position: relative;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.message-sent {
+    align-self: flex-end;
+}
+
+.message-sent .bubble-content {
+    background-color: var(--primary-blue);
+    color: white;
+    border-radius: 20px 20px 4px 20px;
+}
+
+.message-received {
+    align-self: flex-start;
+}
+
+.message-received .bubble-content {
+    background-color: white;
+    color: #1f2937;
+    border-radius: 20px 20px 20px 4px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--border-gray);
+}
+
+/* Active Chat Item */
+.chat-item-active {
+    background-color: #eff6ff;
+    border-left: 3px solid var(--primary-blue);
+}
+
+.chat-item:hover:not(.chat-item-active) {
+    background-color: #f9fafb;
+}
+
+/* Status Indicator Pulse */
+.online-pulse {
+    position: relative;
+}
+
+.online-pulse::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background-color: #10b981;
+    border: 2px solid white;
+    border-radius: 50%;
+}
+
+.offline-pulse::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background-color: #9ca3af;
+    border: 2px solid white;
+    border-radius: 50%;
+}

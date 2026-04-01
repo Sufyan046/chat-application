@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatApp - Real-Time Messaging</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 font-['Inter'] h-screen overflow-hidden">
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="fixed inset-0 bg-white z-50 flex items-center justify-center transition-opacity duration-300">
+        <div class="max-w-md w-full p-8 bg-white rounded-2xl shadow-xl border border-gray-100 animate-fade-in">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 text-white rounded-2xl mb-4 shadow-lg shadow-blue-200">
+                    <i data-lucide="message-square" class="w-8 h-8"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900">Welcome Back</h1>
+                <p class="text-gray-500 mt-2">Sign in to start chatting</p>
+            </div>
+
+            <form id="auth-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input type="text" id="username" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none" placeholder="Enter your username">
+                </div>
+                <div id="email-group" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="email" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none" placeholder="Enter your email">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="password" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none" placeholder="••••••••">
+                </div>
+                <button type="submit" id="submit-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-all transform active:scale-[0.98] shadow-lg shadow-blue-200">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <button id="toggle-auth" class="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                    Don't have an account? Sign Up
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Chat Layout -->
+    <div id="app-screen" class="hidden flex h-full">
+        <!-- Sidebar -->
+        <aside class="w-80 border-r border-gray-200 bg-white flex flex-col">
+            <!-- User Header -->
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div id="my-avatar" class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">
+                        U
+                    </div>
+                    <div>
+                        <h2 id="my-username" class="font-semibold text-gray-900 leading-tight">User</h2>
+                        <span class="text-xs text-green-500 flex items-center gap-1">
+                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                            Online
+                        </span>
+                    </div>
+                </div>
+                <button id="logout-btn" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Search & Tabs -->
+            <div class="p-4 space-y-4">
+                <div class="relative">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" placeholder="Search chats..." class="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                </div>
+                
+                <div class="flex gap-2 p-1 bg-gray-100 rounded-xl">
+                    <button id="tab-private" class="flex-1 py-1.5 text-xs font-semibold rounded-lg bg-white shadow-sm text-blue-600">Private</button>
+                    <button id="tab-groups" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-gray-500 hover:bg-white/50">Groups</button>
+                </div>
+            </div>
+
+            <!-- List of Chats -->
+            <div id="chat-list" class="flex-1 overflow-y-auto custom-scrollbar">
+                <!-- Chat items will be injected here -->
+            </div>
+
+            <!-- Add Button -->
+            <div class="p-4 border-t border-gray-100">
+                <button id="add-chat-btn" class="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-all active:scale-[0.98]">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    New Chat
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="flex-1 flex flex-col bg-white">
+            <div id="empty-state" class="flex-1 flex flex-col items-center justify-center p-8 text-center bg-gray-50/50">
+                <div class="w-24 h-24 bg-white rounded-3xl shadow-sm flex items-center justify-center text-gray-300 mb-6">
+                    <i data-lucide="messages-square" class="w-12 h-12"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900">Select a conversation</h3>
+                <p class="text-gray-500 mt-2 max-w-xs">Pick a friend or group to start chatting in real-time.</p>
+            </div>
+
+            <div id="chat-window" class="hidden flex-1 flex flex-col">
+                <!-- Chat Header -->
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-10">
+                    <div class="flex items-center gap-4">
+                        <div id="chat-avatar" class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center font-bold text-lg">
+                            C
+                        </div>
+                        <div>
+                            <h3 id="chat-title" class="font-bold text-gray-900 text-lg leading-tight">Chat Title</h3>
+                            <span id="chat-status" class="text-sm text-gray-500">Offline</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="p-2.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">
+                            <i data-lucide="phone" class="w-5 h-5"></i>
+                        </button>
+                        <button class="p-2.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">
+                            <i data-lucide="video" class="w-5 h-5"></i>
+                        </button>
+                        <button class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all">
+                            <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div id="messages-container" class="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/50 custom-scrollbar">
+                    <!-- Messages will be injected here -->
+                </div>
+
+                <!-- Message Input -->
+                <div class="p-4 bg-white border-t border-gray-100">
+                    <form id="message-form" class="flex items-center gap-3">
+                        <button type="button" class="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">
+                            <i data-lucide="paperclip" class="w-5 h-5"></i>
+                        </button>
+                        <div class="flex-1 relative">
+                            <input type="text" id="message-input" placeholder="Type a message..." class="w-full px-5 py-3.5 bg-gray-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all pr-12">
+                            <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-blue-600 transition-all">
+                                <i data-lucide="smile" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <button type="submit" class="p-3.5 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all transform active:scale-95 shadow-lg shadow-blue-200">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="new-chat-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden animate-slide-up shadow-2xl">
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-900">New Message</h3>
+                <button class="modal-close p-2 text-gray-400 hover:bg-gray-100 rounded-lg transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="p-2 max-h-96 overflow-y-auto" id="users-list">
+                <!-- Users will be injected here -->
+            </div>
+            
+            <div class="p-4 bg-gray-50 flex items-center justify-center border-t border-gray-100">
+                <button id="create-group-btn" class="text-blue-600 font-semibold hover:underline flex items-center gap-2">
+                    <i data-lucide="users" class="w-4 h-4"></i>
+                    Create a new group
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Group Modal -->
+    <div id="create-group-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden animate-slide-up shadow-2xl">
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-900">Create Group</h3>
+                <button class="modal-close p-2 text-gray-400 hover:bg-gray-100 rounded-lg transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <form id="group-form" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Group Name</label>
+                    <input type="text" id="group-name" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-blue-200">
+                    Create Group
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
